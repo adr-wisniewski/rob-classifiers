@@ -1,0 +1,44 @@
+Proszê Pañstwa,
+
+Publikujê zestaw funkcji, które wyznaczaj¹ punkt odniesienia dla Pañstwa prób 
+rozpoznawania rêcznego pisma blokowego. Zawieraj¹ one implementacjê redukcji wymiarów
+metod¹ sk³adowych g³ównych prezentowan¹ na wyk³adzie, oraz klasyfikacjê najbli¿szego
+s¹siedztwa (5-NN) z g³osowaniem bezwzglêdn¹ wiêkszoœci¹ g³osów.
+Implementacja jest nieco "na wyrost" (zosta³a przygotowana pod eksperymenty z doborem 
+wartoœci k oraz metody g³osowania).
+
+Niestety, ze wzglêdu na wymagania pamiêciowe, przedstawione rozwi¹zanie nie dzia³a
+w Octave 3.0.3 pod systemem Windows XP - czyli konfiguracji, która dzia³a w laboratorium. 
+Testy i wyniki by³y liczone w wersji 3.6.1 Octave pod systemem Windows 7.
+
+# Za³adowanie zbiorów danych MNIST
+[tvec tlab tstv tstl] = readSets(); 
+
+# Policzenie transformacji do przestrzeni PCA (40-wymiarowej) 
+[mu trmx] = prepTransform(tvec, 40);
+
+# Zbiory ucz¹cy i testowy do przestrzeni PCA
+tvec = pcaTransform(tvec, mu, trmx);
+tstv = pcaTransform(tstv, mu, trmx);
+
+# wyznaczenie najbli¿szych s¹siadów próbek ze zbioru testowego w zbiorze ucz¹cym
+# tu jest nadmiar, bo wyznaczam etykiety i odleg³oœci do 15 najbli¿szych s¹siadów
+# UWAGA: ten etap mo¿e potrwaæ (u mnie > 10le minut)
+
+[letlab letdist] = labknn(tvec, tlab, tstv, 15);
+
+# klasyfikacja 5-NN z g³osowaniem bezwzglêdn¹ wiêkszoœci¹ - wynik w postaci macierzy pomy³ek
+
+lettersCfMx = simpleMajority(letlab(:, 1:5), tstl);
+
+
+# dane syntetyczne (poprawne, b³êdy, wymijaj¹ce) do wstawienia do tabelki
+
+errors(lettersCfMx)
+
+
+
+Rajmund Ko¿uszek
+
+
+
